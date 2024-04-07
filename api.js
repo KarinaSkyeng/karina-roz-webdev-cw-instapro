@@ -34,6 +34,31 @@ export async function getUserPosts({ id }) {
   return data_1.posts;
 }
 
+export async function postPost({description, imageUrl}) {
+  try {
+  const response = await fetch(postsHost, {
+    method: "POST",
+    body: JSON.stringify({
+         description,
+         imageUrl,
+    }),
+    headers: {
+      Authorization: getToken(),
+    },
+  });
+
+      if (response.status === 201) {
+        return response.json();
+      } else if (response.status === 400) {
+        alert("Введите описание картинки и/или добавьте ссылку на фото");
+          throw new Error("Введите описание картинки и/или добавьте ссылку на фото");
+      }
+    } catch (error) {
+      console.error("Ошибка при создании поста:", error);
+      throw error;
+    } 
+}
+
 // https://github.com/GlebkaF/webdev-hw-api/blob/main/pages/api/user/README.md#%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B8%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D1%8C%D1%81%D1%8F
 export async function registerUser({ login, password, name, imageUrl }) {
   const response = await fetch(userHost + "/api/user", {
