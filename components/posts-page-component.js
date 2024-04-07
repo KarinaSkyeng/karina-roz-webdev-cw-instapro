@@ -3,6 +3,7 @@ import { renderHeaderComponent } from "./header-component.js";
 import { posts, goToPage } from "../index.js";
 
 
+
   export async function renderPostsPageComponent({ appEl }) {
     try {
       // Получаем данные о постах из вашего API
@@ -67,4 +68,78 @@ import { posts, goToPage } from "../index.js";
       console.error('Ошибка при загрузке постов:', error);
     }
   }
+
+  export function renderUserPostsPageComponent({ appEl, posts, user, goToPage }) {
+    const postsHtml = posts.map(post => `
+      <li class="post">
+        <div class="post-header" data-user-id="${post.user.id}">
+            <img src="${post.user.imageUrl}" class="post-header__user-image">
+            <p class="post-header__user-name">${post.user.name}</p>
+        </div>
+        <div class="post-image-container">
+          <img class="post-image" src="${post.imageUrl}">
+        </div>
+        <div class="post-likes">
+          <button data-post-id="${post.id}" class="like-button">
+            <img src="${post.isLiked ? './assets/images/like-active.svg' : './assets/images/like-not-active.svg'}">
+          </button>
+          <p class="post-likes-text">
+            Нравится: <strong>${post.likes.length}</strong>
+          </p>
+        </div>
+        <p class="post-text">
+          <span class="user-name">${post.user.name}</span>
+          ${post.description}
+        </p>
+        <p class="post-date">
+          ${formatDate(post.createdAt)}
+        </p>
+      </li>
+    `).join('');
   
+    const appHtml = `
+      <div class="page-container">
+        <div class="header-container"></div>
+        <ul class="posts">
+          ${postsHtml}
+        </ul>
+      </div>
+    `;
+  
+    appEl.innerHTML = appHtml;
+  
+    // Добавляем обработчики событий для кнопок лайков
+    const likeButtons = appEl.querySelectorAll('.like-button');
+    likeButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const postId = button.dataset.postId;
+        postLike(postId)
+          .then(() => {
+            // Обновляем посты после лайка
+            goToPage(USER_POSTS_PAGE, { userId: user.id });
+          })
+          .catch(error => {
+            console.error('Ошибка при лайке поста:', error);
+          });
+      });
+    });
+  }
+
+  export { renderUserPostsPageComponent };
+  
+  function formatDate(date) {
+    const options = { 
+      day: 'numeric', 
+      month: 'numeric', 
+      year: 'numeric', 
+      hour: 'numeric', 
+      minute: 'numeric' 
+    };
+    
+    return new Intl.DateTimeFormat('ru-RU', options).format(date);
+  }
+  
+  // Пример использования:
+  const now = new Date();
+  const formattedDate = formatDate(now);
+  console.log(formattedDate);

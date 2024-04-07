@@ -4,7 +4,8 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
     const appHtml = `
     <div class="page-container">
       <div class="header-container"></div>
-      Cтраница добавления поста
+      <input type="text" id="description-input" placeholder="Введите описание">
+      <input type="text" id="image-url-input" placeholder="Введите URL изображения">
       <button class="button" id="add-button">Добавить</button>
     </div>
   `;
@@ -12,12 +13,19 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
     appEl.innerHTML = appHtml;
 
     document.getElementById("add-button").addEventListener("click", () => {
-      onAddPostClick({
-        description: "Описание картинки",
-        imageUrl: "https://image.png",
-      });
-    });
-  };
+      const description = document.getElementById("description-input").value;
+      const imageUrl = document.getElementById("image-url-input").value;
+    
+      // Проверка на пустые поля
+      if (description.trim() === '' || imageUrl.trim() === '') {
+        alert('Пожалуйста, заполните все поля');
+        return;
+      }
+    
+      // Вызов функции обработчика с введенными данными
+      onAddPostClick({ description, imageUrl });
+    }); 
+  }
 
   render();
 }
