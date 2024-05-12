@@ -1,6 +1,7 @@
 
 import { getPosts } from "./api.js";
 import { renderAddPostPageComponent } from "./components/add-post-page-component.js";
+import { renderUserPostsPageComponent } from "./components/user-post-component.js";
 import { renderAuthPageComponent } from "./components/auth-page-component.js";
 import {
   ADD_POSTS_PAGE,
@@ -9,7 +10,7 @@ import {
   POSTS_PAGE,
   USER_POSTS_PAGE,
 } from "./routes.js";
-import { renderPostsPageComponent, renderUserPostsPageComponent } from "./components/posts-page-component.js";
+import { renderPostsPageComponent } from "./components/posts-page-component.js";
 import { renderLoadingPageComponent } from "./components/loading-page-component.js";
 import {
   getUserFromLocalStorage,
@@ -69,11 +70,15 @@ export const goToPage = (newPage, data) => {
 
     if (newPage === USER_POSTS_PAGE) {
       // TODO: реализовать получение постов юзера из API
-      console.log("Открываю страницу пользователя: ", data.userId);
-      page = USER_POSTS_PAGE;
-      posts = [];
-      return renderApp();
-
+      return getUserPosts({id: data.userId})
+      .then((newPosts) => {
+        page = USER_POSTS_PAGE;
+        posts = newPosts;
+        renderApp();
+      }).catch((error) => {
+        console.log(error);
+        goToPage();
+      })
     }
 
     page = newPage;
@@ -81,7 +86,6 @@ export const goToPage = (newPage, data) => {
 
     return;
   }
-
   throw new Error("страницы не существует");
 };
 
@@ -112,35 +116,30 @@ const renderApp = () => {
     return renderAddPostPageComponent({
       appEl,
       onAddPostClick({ description, imageUrl }) {
-        postPost({ description, imageUrl })
-          .then(() => {
-            goToPage(POSTS_PAGE);
-          })
-          .catch((error) => {
-            console.error(error);
-            // Обработка ошибки при добавлении поста
-          });
-      },
+        // TODO: реализовать добавление поста в API
+           goToPage(POSTS_PAGE);
+       },        
     });
   }
 
   if (page === POSTS_PAGE) {
     return renderPostsPageComponent({
       appEl,
-      posts,
-      user,
-      goToPage,
+      posts
     });
   }
 
   if (page === USER_POSTS_PAGE) {
+    //передать id пользователя или передать параметром режим просмотра (true, false)
     return renderUserPostsPageComponent({
       appEl,
-      posts,
-      user,
-      goToPage,
-    });
+      posts
+    })
+  }
+};
+   
+    export function setPosts(newPosts) {
+      posts = newPosts;
 }
 
   goToPage(POSTS_PAGE);
-}

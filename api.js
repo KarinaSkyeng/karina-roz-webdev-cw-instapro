@@ -11,27 +11,35 @@ export async function getPosts({ token }) {
     headers: {
       Authorization: token,
     },
-  })
-   if (response.status === 401) {
-        throw new Error("Нет авторизации");
-      }
-      const data = await response.json();
-      return data.posts;  
+  });
+
+  if (response.status === 401) {
+    throw new Error("Нет авторизации");
+  }
+
+  const data = await response.json();
+  return data.posts;  
 }
 
-export async function getUserPosts({ id }) {
+export async function getUserPosts( id, { token }) {
   console.log(id)
   const response = await fetch(`${userHost}/${id}`, {
     method: "GET",
     headers: {
-      Authorization: getToken(),
+      Authorization: token,
     },
   });
+
   if (response.status === 401) {
     throw new Error("Нет авторизации");
   }
-  const data_1 = await response.json();
-  return data_1.posts;
+  
+  if (!response.ok) {
+    throw new Error("Ошибка при получении данных пользователя");
+  }
+
+  const userData = await response.json();
+  return userData.posts;
 }
 
 export async function postPost({description, imageUrl}) {
@@ -73,7 +81,7 @@ export async function registerUser({ login, password, name, imageUrl }) {
     if (response.status === 400) {
       throw new Error("Такой пользователь уже существует");
     }
-    return await response.json();  
+    return response.json();  
 }
 
 export async function loginUser({ login, password }) {
@@ -100,4 +108,34 @@ export async function uploadImage({ file }) {
     body: data,
   });
     return await response.json(); 
+}
+
+export async function likePost(id, { token }) {
+  const response = await fetch(`${postsHost}/${id}/like`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+  });
+
+  if (response.status === 200) {
+    return response.json();
+  } else {
+    throw new Error("Лайкать посты могут только авторизованные пользователи");
+  }
+}
+
+export async function dislikeLike(id, { token }) {
+  const response = await fetch(`${postsHost}/${id}/dislike`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+    },
+  });
+
+  if (response.status === 200) {
+    return response.json();
+  } else {
+    throw new Error("Лайкать посты могут только авторизованные пользователи");
+  }
 }

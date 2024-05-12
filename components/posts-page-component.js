@@ -1,145 +1,115 @@
 import { USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
-import { posts, goToPage } from "../index.js";
+import { goToPage } from "../index.js";
+import { escapeHTML, handleLike } from "../helpers.js";
 
-
-
-  export async function renderPostsPageComponent({ appEl }) {
-    try {
-      // Получаем данные о постах из вашего API
-      const response = await fetch('URL_вашего_API/posts');
-      const postsData = await response.json();
+export function renderPostsPageComponent({ appEl, posts }) {
+  const renderPost = (post) => {
+    const isLiked = post.isLiked ? 'true' : 'false';
+    const likesCount = post.likes ? post.likes.length : 0;
   
-      // Создаем HTML для списка постов на основе данных из API
-      let postsHTML = '';
-      postsData.forEach(post => {
-        postsHTML += `
-          <li class="post">
-            <div class="post-header" data-user-id="${post.userId}">
-                <img src="${post.userImageUrl}" class="post-header__user-image">
-                <p class="post-header__user-name">${post.userName}</p>
-            </div>
-            <div class="post-image-container">
-              <img class="post-image" src="${post.imageUrl}">
-            </div>
-            <div class="post-likes">
-              <button data-post-id="${post.id}" class="like-button">
-                <img src="./assets/images/${post.isLiked ? 'like-active' : 'like-not-active'}.svg">
-              </button>
-              <p class="post-likes-text">
-                Нравится: <strong>${post.likes}</strong>
-              </p>
-            </div>
-            <p class="post-text">
-              <span class="user-name">${post.userName}</span>
-              ${post.description}
-            </p>
-            <p class="post-date">
-              ${post.createdAt} <!-- Здесь нужно форматировать дату -->
-            </p>
-          </li>`;
-      });
-  
-      // Добавляем HTML списка постов на страницу
-      const appHtml = `
-        <div class="page-container">
-          <div class="header-container"></div>
-          <ul class="posts">
-            ${postsHTML}
-          </ul>
-        </div>`;
-      
-      appEl.innerHTML = appHtml;
-  
-      // Рендерим компонент заголовка
-      renderHeaderComponent({
-        element: document.querySelector(".header-container"),
-      });
-  
-      // Добавляем обработчики событий для перехода на страницу пользователя
-      for (let userEl of document.querySelectorAll(".post-header")) {
-        userEl.addEventListener("click", () => {
-          goToPage(USER_POSTS_PAGE, {
-            userId: userEl.dataset.userId,
-          });
-        });
-      }
-    } catch (error) {
-      console.error('Ошибка при загрузке постов:', error);
+    let likesText = "Нравится:";
+    if (likesCount === 0) {
+      likesText += " 0";
+    } else if (likesCount === 1) {
+      likesText += ` ${escapeHTML(post.likes[0].name)}`;
+    } else {
+      likesText += ` ${escapeHTML(post.likes[0].name)} и еще ${likesCount - 1}`;
     }
-  }
-
-  export function renderUserPostsPageComponent({ appEl, posts, user, goToPage }) {
-    const postsHtml = posts.map(post => `
+  
+    const postHtml = `
       <li class="post">
         <div class="post-header" data-user-id="${post.user.id}">
-            <img src="${post.user.imageUrl}" class="post-header__user-image">
-            <p class="post-header__user-name">${post.user.name}</p>
+          <img src="${post.user.imageUrl}" class="post-header__user-image">
+          <p class="post-header__user-name">${escapeHTML(post.user.name)}</p>
         </div>
         <div class="post-image-container">
           <img class="post-image" src="${post.imageUrl}">
         </div>
         <div class="post-likes">
-          <button data-post-id="${post.id}" class="like-button">
-            <img src="${post.isLiked ? './assets/images/like-active.svg' : './assets/images/like-not-active.svg'}">
+          <button data-post-id="${post.id}" data-liked="${isLiked}" class="like-button">
+            <img src="./assets/images/${post.isLiked ? 'like-active' : 'like-not-active'}.svg">
           </button>
           <p class="post-likes-text">
-            Нравится: <strong>${post.likes.length}</strong>
+            ${likesText}
           </p>
         </div>
         <p class="post-text">
-          <span class="user-name">${post.user.name}</span>
-          ${post.description}
+          <span class="user-name">${escapeHTML(post.user.name)}</span>
+          ${escapeHTML(post.description)}
         </p>
         <p class="post-date">
           ${formatDate(post.createdAt)}
         </p>
       </li>
-    `).join('');
-  
-    const appHtml = `
-      <div class="page-container">
-        <div class="header-container"></div>
-        <ul class="posts">
-          ${postsHtml}
-        </ul>
-      </div>
     `;
+    return postHtml;
+  };
   
-    appEl.innerHTML = appHtml;
-  
-    // Добавляем обработчики событий для кнопок лайков
-    const likeButtons = appEl.querySelectorAll('.like-button');
-    likeButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const postId = button.dataset.postId;
-        postLike(postId)
-          .then(() => {
-            // Обновляем посты после лайка
-            goToPage(USER_POSTS_PAGE, { userId: user.id });
-          })
-          .catch(error => {
-            console.error('Ошибка при лайке поста:', error);
-          });
-      });
-    });
-  }
+  formatDate();
 
-  export { renderUserPostsPageComponent };
+  const appHtml = `
+    <div class="page-container">
+      <div class="header-container"></div>
+      <ul class="posts">
+        ${posts.map(renderPost).join('')}
+      </ul>
+    </div>`;
+
+  appEl.innerHTML = appHtml;
   
-  function formatDate(date) {
-    const options = { 
-      day: 'numeric', 
-      month: 'numeric', 
-      year: 'numeric', 
-      hour: 'numeric', 
-      minute: 'numeric' 
-    };
-    
-    return new Intl.DateTimeFormat('ru-RU', options).format(date);
+  renderHeaderComponent({
+    element: appEl.querySelector(".header-container"),
+  });
+  initLikeButtonListener(appEl, handleLike);
+
+  appEl.querySelectorAll(".post-header").forEach((postHeaderElement) => {
+    const userId = postHeaderElement.dataset.userId; 
+    handlePostHeaderClick(postHeaderElement, userId); 
+  });
+}
+
+
+export function updateLikeButton(postId, isLiked) {
+  const likeButton = document.querySelector(`[data-post-id="${postId}"]`);
+  if (likeButton) {
+    const likeImage = likeButton.querySelector('img');
+    if (!isLiked) {
+      likeImage.src = './assets/images/like-active.svg'; 
+    } else {
+      likeImage.src = './assets/images/like-not-active.svg'; 
+    }
   }
-  
-  // Пример использования:
+}
+
+const handlePostHeaderClick = (postHeaderElement, userId) => {
+  postHeaderElement.addEventListener("click", () => {
+    goToPage(USER_POSTS_PAGE, { userId }); 
+  });
+};
+
+export function initLikeButtonListener(appEl, handleLike) {
+  const likesButtons = appEl.querySelectorAll('.like-button');
+  likesButtons.forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const id = button.dataset.postId;
+      const isLiked = button.dataset.liked === 'true';
+
+      handleLike(id, isLiked)
+        .then((updatedPost) => {
+          updateLikeButton(id, isLiked);
+        })
+        .catch((error) => {
+          console.error("Ошибка при обработке лайка:", error);
+        });
+    });
+  });
+}
+
+export const formatDate = (dateString) => {
+  const date = new Date(dateString);
   const now = new Date();
-  const formattedDate = formatDate(now);
-  console.log(formattedDate);
+  const diffInMs = now - date;
+  return `${Math.round(diffInMs / (1000 * 60))} минут назад`;
+};
