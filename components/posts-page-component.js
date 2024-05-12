@@ -1,7 +1,7 @@
 import { USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
 import { goToPage } from "../index.js";
-import { escapeHTML, handleLike } from "../helpers.js";
+import { sanitizeHTML, handleLike } from "../helpers.js";
 
 export function renderPostsPageComponent({ appEl, posts }) {
   const renderPost = (post) => {
@@ -12,16 +12,16 @@ export function renderPostsPageComponent({ appEl, posts }) {
     if (likesCount === 0) {
       likesText += " 0";
     } else if (likesCount === 1) {
-      likesText += ` ${escapeHTML(post.likes[0].name)}`;
+      likesText += ` ${sanitizeHTML(post.likes[0].name)}`;
     } else {
-      likesText += ` ${escapeHTML(post.likes[0].name)} и еще ${likesCount - 1}`;
+      likesText += ` ${sanitizeHTML(post.likes[0].name)} и еще ${likesCount - 1}`;
     }
   
     const postHtml = `
       <li class="post">
         <div class="post-header" data-user-id="${post.user.id}">
           <img src="${post.user.imageUrl}" class="post-header__user-image">
-          <p class="post-header__user-name">${escapeHTML(post.user.name)}</p>
+          <p class="post-header__user-name">${sanitizeHTML(post.user.name)}</p>
         </div>
         <div class="post-image-container">
           <img class="post-image" src="${post.imageUrl}">
@@ -35,8 +35,8 @@ export function renderPostsPageComponent({ appEl, posts }) {
           </p>
         </div>
         <p class="post-text">
-          <span class="user-name">${escapeHTML(post.user.name)}</span>
-          ${escapeHTML(post.description)}
+          <span class="user-name">${sanitizeHTML(post.user.name)}</span>
+          ${sanitizeHTML(post.description)}
         </p>
         <p class="post-date">
           ${formatDate(post.createdAt)}
