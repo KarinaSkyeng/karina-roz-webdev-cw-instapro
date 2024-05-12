@@ -37,6 +37,21 @@ export function getUserPosts({id}) {
   });
 }
 
+export function getUserId() {
+  const user = getUserFromLocalStorage(); 
+  if (user) {
+    return user.id;
+  } else {
+    throw new Error('Пользователь не авторизован');
+  }
+}
+
+export function getUsername() {
+  const userString = localStorage.getItem('user');
+  const user = JSON.parse(userString);
+  return user ? user.username : null;
+}
+
 export function addPost({ description, imageUrl }) {
   return fetch(postsHost, {
     method: 'POST',
