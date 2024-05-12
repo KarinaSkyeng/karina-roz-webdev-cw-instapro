@@ -1,7 +1,7 @@
 
-import { getPosts } from "./api.js";
+import { getPosts, getUserPosts } from "./api.js";
 import { renderAddPostPageComponent } from "./components/add-post-page-component.js";
-import { renderUserPostsPageComponent } from "./components/user-post-component.js";
+import { renderUserPageComponent } from "./components/user-post-component.js";
 import { renderAuthPageComponent } from "./components/auth-page-component.js";
 import {
   ADD_POSTS_PAGE,
@@ -22,7 +22,7 @@ export let user = getUserFromLocalStorage();
 export let page = null;
 export let posts = [];
 
-const getToken = () => {
+export const getToken = () => {
   const token = user ? `Bearer ${user.token}` : null;
   return token;
 };
@@ -81,6 +81,15 @@ export const goToPage = (newPage, data) => {
       })
     }
 
+    if (validPages.includes(newPage)) {
+      // Обработка страниц из списка допустимых страниц
+      // ...
+    } else {
+      // Обработка ситуации, когда страница не существует
+      console.error(`Page "${newPage}" does not exist.`);
+      goToPage(POSTS_PAGE); // Перенаправляем пользователя на страницу с постами
+    }
+
     page = newPage;
     renderApp();
 
@@ -131,7 +140,7 @@ const renderApp = () => {
 
   if (page === USER_POSTS_PAGE) {
     //передать id пользователя или передать параметром режим просмотра (true, false)
-    return renderUserPostsPageComponent({
+    return renderUserPageComponent({
       appEl,
       posts
     })
