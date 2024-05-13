@@ -81,15 +81,6 @@ export const goToPage = (newPage, data) => {
       })
     }
 
-    if (validPages.includes(newPage)) {
-      // Обработка страниц из списка допустимых страниц
-      // ...
-    } else {
-      // Обработка ситуации, когда страница не существует
-      console.error(`Page "${newPage}" does not exist.`);
-      goToPage(POSTS_PAGE); // Перенаправляем пользователя на страницу с постами
-    }
-
     page = newPage;
     renderApp();
 
