@@ -3,7 +3,7 @@ import { getUserFromLocalStorage } from "./helpers.js";
 
 // Замени на свой, чтобы получить независимый от других набор данных.
 // "боевая" версия инстапро лежит в ключе prod
-const personalKey = "karina-roz";
+const personalKey = "karina-rozenberga";
 const baseHost = "https://webdev-hw-api.vercel.app";
 const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
 
@@ -26,8 +26,7 @@ export function getPosts({ token }) {
     });
 }
 
-export function getUserPosts({id}) {
-  console.log(id);
+export function getUserPosts({id}) { 
   return fetch(postsHost + `/user-posts/${id}`, {
     method: "GET",
   }).then((response) => {

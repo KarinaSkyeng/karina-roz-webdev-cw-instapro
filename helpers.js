@@ -31,8 +31,7 @@ export function handleLike(postId, isLiked) {
   const token = getToken();
   if (isLiked) {
     return getDislike(postId, { token })
-      .then((post) => {
-        console.log('удаляю');
+      .then((post) => {        
         const likeButton = document.querySelector(`[data-post-id="${postId}"]`);
         if (likeButton) {
           const likeImage = likeButton.querySelector('img');
@@ -47,8 +46,7 @@ export function handleLike(postId, isLiked) {
       });
   } else {
     return getLike(postId, { token })
-      .then((post) => {
-        console.log('лайкаю');
+      .then((post) => {        
         const likeButton = document.querySelector(`[data-post-id="${postId}"]`);
         if (likeButton) {
           const likeImage = likeButton.querySelector('img');
