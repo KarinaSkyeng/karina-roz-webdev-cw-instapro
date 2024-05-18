@@ -37,6 +37,8 @@ export const logout = () => {
  * Включает страницу приложения
  */
 export const goToPage = (newPage, data) => {
+  console.log('goToPage called with:', newPage, data);
+
   if (
     [
       POSTS_PAGE,
@@ -58,12 +60,13 @@ export const goToPage = (newPage, data) => {
 
       return getPosts({ token: getToken() })
         .then((newPosts) => {
+          console.log('getPosts resolved:', newPosts);
           page = POSTS_PAGE;
           posts = newPosts;
           renderApp();
         })
         .catch((error) => {
-          console.error(error);
+          console.error('Error fetching posts:', error);
           goToPage(POSTS_PAGE);
         });
     }
@@ -72,12 +75,15 @@ export const goToPage = (newPage, data) => {
       // TODO: реализовать получение постов юзера из API
       return getUserPosts({id: data.userId})
       .then((newPosts) => {
+        console.log('getUserPosts resolved:', newPosts);
         page = USER_POSTS_PAGE;
         posts = newPosts;
         renderApp();
-      }).catch((error) => {
+      })
+      .catch((error) => {
         console.log(error);
-        goToPage();
+        console.error('Error fetching user posts:', error);
+        goToPage(POSTS_PAGE);
       })
     }
 
@@ -90,6 +96,7 @@ export const goToPage = (newPage, data) => {
 };
 
 const renderApp = () => {
+  console.log('renderApp called with page:', page);
   const appEl = document.getElementById("app");
   if (page === LOADING_PAGE) {
     return renderLoadingPageComponent({
@@ -115,9 +122,10 @@ const renderApp = () => {
   if (page === ADD_POSTS_PAGE) {
     return renderAddPostPageComponent({
       appEl,
-      onAddPostClick({ description, imageUrl }) {
+      onAddPostClick: ({ description, imageUrl }) => {
         // TODO: реализовать добавление поста в API
-           goToPage(POSTS_PAGE);
+          console.log('Adding post with description:', description, 'and imageUrl:', imageUrl);
+          goToPage(POSTS_PAGE);
        },        
     });
   }

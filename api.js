@@ -22,6 +22,7 @@ export function getPosts({ token }) {
       return response.json();
     })
     .then((data) => {
+      console.log('GET response data:', data);
       return data.posts;
     });
 }

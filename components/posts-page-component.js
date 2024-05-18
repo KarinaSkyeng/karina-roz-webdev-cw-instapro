@@ -52,7 +52,7 @@ export function renderPostsPageComponent({ appEl, posts }) {
     <div class="page-container">
       <div class="header-container"></div>
       <ul class="posts">
-        ${posts.map(renderPost).join('')}
+      ${posts.length > 0 ? posts.map(renderPost).join('') : '<p>Нет доступных постов</p>'}
       </ul>
     </div>`;
 
@@ -61,7 +61,10 @@ export function renderPostsPageComponent({ appEl, posts }) {
   renderHeaderComponent({
     element: appEl.querySelector(".header-container"),
   });
-  initLikeButtonListener(appEl, handleLike);
+  
+  if (posts.length > 0) {
+    initLikeButtonListener(appEl, handleLike);
+  }
 
   appEl.querySelectorAll(".post-header").forEach((postHeaderElement) => {
     const userId = postHeaderElement.dataset.userId; 
