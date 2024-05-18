@@ -61,10 +61,7 @@ export function renderPostsPageComponent({ appEl, posts }) {
   renderHeaderComponent({
     element: appEl.querySelector(".header-container"),
   });
-  
-  if (posts.length > 0) {
-    initLikeButtonListener(appEl, handleLike);
-  }
+  initLikeButtonListener(appEl, handleLike);
 
   appEl.querySelectorAll(".post-header").forEach((postHeaderElement) => {
     const userId = postHeaderElement.dataset.userId; 
