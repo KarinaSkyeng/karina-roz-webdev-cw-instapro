@@ -1,0 +1,23 @@
+{
+  "name": "karina-roz-webdev-cw-instapro",
+  "version": "1.0.0",
+  "description": "MVP аналога популярной соц. сети для обмена фотографиями",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "webpack serve",
+    "build": "webpack",
+    "serve": "http-server ./dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4"    
+  }
+}
